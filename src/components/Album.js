@@ -12,11 +12,14 @@ class Album extends Component {
 		this.state = {
 			album: album,
 			currentSong: album.songs[0],
-			isPlaying: false
+			isPlaying: false,
+			hoverVal: 0
 		};
 
 		this.audioElement = document.createElement('audio');
 		this.audioElement.src = album.songs[0].audioSrc;
+		this.playIcon = 'icon ion-md-play';
+		this.pauseIcon = 'icon ion-md-pause';
 	}
 
 	play(){
@@ -35,12 +38,52 @@ class Album extends Component {
 	}
 
 	handleSongClick(song){
-		var isSameSong = this.state.currentSong === song;
+		const isSameSong = this.state.currentSong === song;
 		if (this.state.isPlaying && isSameSong) {
 			this.pause();
 		} else {
-			if (!isSameSong){ this.setSong(song); }
+			if (!isSameSong){ 
+				this.setSong(song);
+			}
 			this.play();
+		}
+	}
+
+	songMouseEnter(e, song){
+		if (this.state.currentSong !== song){
+			let songNumber = e.currentTarget.children[0].children[0];
+			this.setState({ hoverVal: songNumber.innerHTML });
+			this.playIconToggle(songNumber);
+		}
+	}
+	
+	songMouseExit(e, song){
+		if (this.state.currentSong !== song){
+			let songNumber = e.currentTarget.children[0].children[0];
+			this.playIconToggle(songNumber, this.state.hoverVal);
+			this.setState({ hoverVal: '' });
+		}
+	}
+
+	playIconToggle(el, text){
+		if(!text){
+			el.innerHTML = '';
+			el.className = this.playIcon;
+		} else {
+			el.innerHTML = text;
+			el.className = '';
+		}
+	}
+
+	displayPlayState(song, index){
+		if (song === this.state.currentSong && this.state.isPlaying){
+			// Playing - Pause Icon
+			return (<span className={this.playIcon}></span>);
+		} else if (song === this.state.currentSong && !this.state.isPlaying) {
+			// Paused - Play Icon
+			return (<span className={this.pauseIcon}></span>);
+		} else if (song !== this.state.currentSong){
+			return (<span className=''>{index + 1}</span>);
 		}
 	}
 
@@ -62,15 +105,13 @@ class Album extends Component {
 						<col id='song-duration-column' />
 					</colgroup>
 					<tbody>
-						{
-							this.state.album.songs.map( (song, index) => 
-								<tr className='song' key={index} onClick={ () => this.handleSongClick(song) } >
-									<td className='song-number'>{index+1}</td>
-									<td className='song-title'>{song.title}</td>
-									<td className='song-duration'>{song.duration}</td>
-								</tr>
-							)
-						}
+						{this.state.album.songs.map( (song, index) => 
+							<tr className='song' key={index} onClick={ () => this.handleSongClick(song) } onMouseEnter={ (e) => this.songMouseEnter(e, song) } onMouseLeave={ (e) => this.songMouseExit(e, song) } >
+								<td className='song-number'>{this.displayPlayState(song, index)}</td>
+								<td className='song-title'>{song.title}</td>
+								<td className='song-duration'>{song.duration}</td>
+							</tr>
+						)}
 					</tbody>
 				</table>
 			</section>
