@@ -107,10 +107,7 @@ class Album extends Component {
 		if (song === this.state.currentSong && this.state.isPlaying){
 			// Playing - Pause Icon
 			return (<span className={this.playIcon}></span>);
-		} else if (song === this.state.currentSong && !this.state.isPlaying) {
-			// Paused - Play Icon
-			return (<span className={this.pauseIcon}></span>);
-		} else if (song !== this.state.currentSong){
+		} else {
 			return (<span className=''>{index + 1}</span>);
 		}
 	}
@@ -148,7 +145,7 @@ class Album extends Component {
 	}
 
 	formatTime(time){
-		if (!time || isNaN(time)) return '0:00';
+		if (!time || isNaN(time)) return '-:--';
 		let min = Math.floor(time/60);
 		let sec = Math.floor(time%60);
 		return (min + ':' + (sec < 10 ? '0' + sec : sec));
@@ -182,7 +179,7 @@ class Album extends Component {
 							<tr className='song' key={index} onClick={ () => this.handleSongClick(song) } onMouseEnter={ (e) => this.songMouseEnter(e, song) } onMouseLeave={ (e) => this.songMouseExit(e, song) } >
 								<td className='song-number'>{this.displayPlayState(song, index)}</td>
 								<td className='song-title'>{song.title}</td>
-								<td className='song-duration'>{song.duration}</td>
+								<td className='song-duration'>{this.formatTime(song.duration)}</td>
 							</tr>
 						)}
 					</tbody>
